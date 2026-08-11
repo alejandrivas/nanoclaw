@@ -133,6 +133,13 @@ export function initSessionFolder(agentGroupId: string, sessionId: string): void
 
   ensureSchema(inboundDbPath(agentGroupId, sessionId), 'inbound');
   ensureSchema(outboundDbPath(agentGroupId, sessionId), 'outbound');
+
+  // Container runs as node (uid=1000); host runs as root. Make session files
+  // writable by others so the container can write to outbound.db.
+  fs.chmodSync(dir, 0o777);
+  fs.chmodSync(path.join(dir, 'outbox'), 0o777);
+  fs.chmodSync(inboundDbPath(agentGroupId, sessionId), 0o666);
+  fs.chmodSync(outboundDbPath(agentGroupId, sessionId), 0o666);
 }
 
 /**
